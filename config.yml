@@ -1,0 +1,30 @@
+#####################
+# GG Gamemode Perms #
+#    By  GusGold    #
+#####################
+#      Config       #
+#####################
+
+# NOTE:
+#    - Delete this file to regenerate it with default values
+#    - If values are not viable, default will be used
+#    - Delete config when updating GGGamemodePerms.jar
+
+Version: 0.1
+checkForUpdates: true
+
+# Commands to execute to change the player's group
+# Use player where the player's name would normally be
+toSurvivalCmd: myPermissions setGroup:Survival setPlayer:player
+toCreativeCmd: myPermissions setGroup:Creative setPlayer:player
+toAdventureCmd: myPermissions setGroup:Adventure setPlayer:player
+
+# Set broadcast message when player enters Survival, Creative or Adventure
+toSurvivalBroadcastEnable: true
+toSurvivalBroadcast: player has entered Survival mode
+
+toCreativeBroadcastEnable: true
+toCreativeBroadcast: player has entered Creative mode
+
+toAdventureBroadcastEnable: true
+toAdventureBroadcast: player has entered Adventure mode
