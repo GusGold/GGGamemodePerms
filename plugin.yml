@@ -1,0 +1,9 @@
+name: GGGamemodePerms
+main: com.au_craft.GGGamemodePerms.GGGamemodePerms
+version: 0.1
+author: GusGold
+
+permissions:
+  GGGP.use.switch:
+    description: Players with this will have their groups changed when changing /gamemode
+    default: op
