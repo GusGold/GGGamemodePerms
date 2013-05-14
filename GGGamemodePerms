@@ -1,0 +1,124 @@
+package com.au_craft.GGGamemodePerms;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+
+import com.au_craft.GGGamemodePerms.UpdateChecker;
+
+public class GGGamemodePerms extends JavaPlugin implements Listener{
+  
+	private boolean toSuBcEnabled, toCrBcEnabled, toAdBcEnabled;
+	private String toSuBcMessage, toCrBcMessage, toAdBcMessage;
+	private String toSuCommand, toCrCommand, toAdCommand;
+	
+	private final String[] JAR_VERSION = {"0.1"};
+	protected UpdateChecker updateChecker;
+	
+	@Override
+	public void onDisable(){
+		
+	}
+	@Override
+	public void onEnable(){
+		loadConfiguration();
+		
+		this.updateChecker = new UpdateChecker(this, "http://dev.bukkit.org/server-mods/gggamemodeperms/files.rss");
+		if (getConfig().getBoolean("checkForUpdates") && this.updateChecker.updateNeeded()){
+			getLogger().info("A new version is available: "+ this.updateChecker.getVersion());
+			getLogger().info("Get it from: " + this.updateChecker.getLink());
+		}
+		if (!getConfig().getBoolean("checkForUpdates")){
+			getLogger().warning("Update Checking is Disabled. It is advised to be enabled. Change settings in config.yml");
+		}
+		
+		getLogger().info("Enabled");
+		getServer().getPluginManager().registerEvents(this, this);
+	}
+	
+	@EventHandler
+	public void onModeChange(PlayerGameModeChangeEvent event){
+		Player target = event.getPlayer();
+		if (target.hasPermission("GGGP.use.switch")){
+			switch (event.getNewGameMode().getValue()){
+				case 0:
+					executeCommand(target, toSuCommand);
+					if (toSuBcEnabled){
+						sayBroadcast(target, toSuBcMessage);
+					}
+					break;
+				case 1:
+					executeCommand(target, toCrCommand);
+					if (toCrBcEnabled){
+						sayBroadcast(target, toCrBcMessage);
+					}
+					break;
+				case 2:
+					executeCommand(target, toAdCommand);
+					if (toAdBcEnabled){
+						sayBroadcast(target, toAdBcMessage);
+					}
+					break;
+				default:
+					getLogger().severe("Undefined Gamemode! Unless Minecraft has changed Gamemodes, something has gone horribly wrong. Check for an updated version.");
+					break;
+			}
+		}
+	}
+
+	public void loadConfiguration(){
+		getConfig().options().copyDefaults(true);
+		saveDefaultConfig();
+		getConfigValues();
+		checkConfigCompatibility();
+	}
+	
+	public void reloadConfiguration(){
+		this.reloadConfig();
+		getConfigValues();
+		checkConfigCompatibility();
+		this.getLogger().info("Config Reloaded");
+	}
+	
+	public void checkConfigCompatibility(){
+		String configVersion = getConfig().getString("Version");
+		boolean configIsCompatible = false;
+		for (String compatibleVersion: JAR_VERSION){
+			if (configVersion.equals(compatibleVersion)){
+				configIsCompatible = true;
+			}
+		}
+		if (!configIsCompatible){
+			getLogger().warning("Config is incompatible. Please delete config and Reload!");
+			getLogger().warning("Using Default values!");
+		}
+		
+	}
+	
+	public void getConfigValues(){
+		toSuBcEnabled = getConfig().getBoolean("toSurvivalBroadcastEnable");
+		toCrBcEnabled = getConfig().getBoolean("toCreativeBroadcastEnable");
+		toAdBcEnabled = getConfig().getBoolean("toAdventureBroadcastEnable");
+		toSuBcMessage = getConfig().getString("toSurvivalBroadcast");
+		toCrBcMessage = getConfig().getString("toCreativeBroadcast");
+		toAdBcMessage = getConfig().getString("toAdventureBroadcast");
+		toSuCommand = getConfig().getString("toSurvivalCmd");
+		toCrCommand = getConfig().getString("toCreativeCmd");
+		toAdCommand = getConfig().getString("toAdventureCmd");
+	}
+	
+	public void sayBroadcast(String message){
+		Bukkit.getServer().broadcastMessage(ChatColor.GREEN + "[GGGamemodePerms] " + message);
+	}
+	
+	public void sayBroadcast(Player target, String message){
+		Bukkit.getServer().broadcastMessage(ChatColor.GREEN + "[GGGamemodePerms] " + message.replaceAll("(player)", ChatColor.DARK_RED + target.getName() + ChatColor.GREEN));
+	}
+	public void executeCommand(Player target, String command){
+		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command.replaceAll("(player)", target.getName()));
+	}
+}
